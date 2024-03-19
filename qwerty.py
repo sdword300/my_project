@@ -22,6 +22,7 @@ class std:
         self.addrs_var=StringVar()
         self.del_var=StringVar()
         self.search_var=StringVar()
+        self.search_by=StringVar()
         
     ##      tools manger    
         manger = Frame(self.root, bg='white' )
@@ -74,11 +75,11 @@ class std:
         add_btn.place(x=20,y=440)
         del_btn = Button(manger, text='حذف', bg= '#FDD2BF' ,width=35,command=self.del_std)
         del_btn.place(x=20,y=480)
-        update_btn = Button(manger, text='تحديث', bg= '#B30C7B' ,width=35)
+        update_btn = Button(manger, text='تحديث', bg= '#B30C7B' ,width=35,command=self.update_std)
         update_btn.place(x=20,y=520)
         clear_btn = Button(manger, text='مسح الحقول', bg= '#7DACE4' ,width=35,command=self.clear)
         clear_btn.place(x=20,y=560)
-        about_btn = Button(manger, text='معلومات عنا', bg= '#4ED99C' ,width=35,command=self.up_std)
+        about_btn = Button(manger, text='معلومات عنا', bg= '#4ED99C' ,width=35)
         about_btn.place(x=20,y=600)
         exit_btn = Button(manger, text='خروج',command=exit,bg= '#5F6CAF',height=2 ,width=35)
         exit_btn.place(x=20,y=650)
@@ -87,15 +88,15 @@ class std:
         search =Frame(self.root,width=1100,height=75,bg='#E8F0F2')
         search.place(x=0,y=36)
         
-        cmb2 = ttk.Combobox(search,state='readonly',value=('id','name','email','phone'))
+        cmb2 = ttk.Combobox(search,textvariable=self.search_by,state='readonly',value=('id','name','email','phone'))
         cmb2.place(x=900,y=28)
         en_search = Entry(search,textvariable=self.search_var,justify='center',bg= 'alice blue')
         en_search.place(x=700,y=30)
-        search_btn = Button(search,text='بحث',bg='#AED9EF',width=14)
+        search_btn = Button(search,text='بحث',bg='#AED9EF',width=14,command=self.search)
         search_btn.place(x=550,y=28)
 
         # frame for list view
-        dis  = Frame(self.root,width=1100,height=684,bg='white')    
+        dis  = Frame(self.root,width=1100,height=684,bg='white')   
         dis.place(x=1,y=114)
         scroll_x = Scrollbar(self.root,orient=HORIZONTAL)  
         scroll_Y = Scrollbar(self.root,orient=VERTICAL)
@@ -190,10 +191,10 @@ class std:
         self.gender_var.set(row[1])
         self.addrs_var.set(row[0])
     # update the database for students
-    def up_std(self):
+    def update_std(self):
             con = pymysql.connect(host='localhost',user='root',password='',database='stud')
             cur = con.cursor()
-            cur.execute("update s1 set addrs=%s,gender=%s,cetri=%s,phone=%s,email=%s,name=%s,id=%s",(
+            cur.execute('update s1 set addrs=%s, gender=%s, cetri=%s, phone=%s, email=%s, name=%s where id=%s',(
                                                         self.addrs_var.get(),
                                                         self.gender_var.get(),
                                                         self.cetri_var.get(),
@@ -207,6 +208,27 @@ class std:
             self.clear()
             con.close()           
         
+    def search(self):
+            con = pymysql.connect(host='localhost',user='root',password='',database='stud')
+            cur = con.cursor()
+            cur.execute("select * from s1 where " +
+            str(self.search_var.get())+" LIKE '%s"+str(self.search_by.get())+"%'")            
+            
+            rows = cur.fetchall()
+            if len (rows) !=0:
+                self.std_table.delete(*self.std_table.get_children())
+                for row in rows:
+                    self.std_table.insert("",END,value=row)
+                con.commit()
+            con.close() 
+  
+  
+  
+  
+  
+  
+  
+  
         
 root = Tk()
 ob = std(root)
