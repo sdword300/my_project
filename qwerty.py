@@ -212,7 +212,7 @@ class std:
             con = pymysql.connect(host='localhost',user='root',password='',database='stud')
             cur = con.cursor()
             cur.execute("select * from s1 where " +
-            str(self.search_var.get())+" LIKE '%s"+str(self.search_by.get())+"%'")            
+            str(self.search_by.get())+" LIKE '%s"+str(self.search_var.get())+"%'")            
             
             rows = cur.fetchall()
             if len (rows) !=0:
