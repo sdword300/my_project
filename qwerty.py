@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 import pymysql
-
+from tkinter import messagebox
 
 class std:
     def __init__(self,root):
@@ -21,8 +21,8 @@ class std:
         self.gender_var = StringVar()
         self.addrs_var=StringVar()
         self.del_var=StringVar()
-        self.search_var=StringVar()
-        self.search_by=StringVar()
+        self.search_var=StringVar()    ##### entrey
+        self.search_by=StringVar()      ##### combox
         
     ##      tools manger    
         manger = Frame(self.root, bg='white' )
@@ -71,18 +71,18 @@ class std:
         t = Label(manger,text='لوحة التحكم' ,fg="white",bg="#282846",height=1 ,width=42)
         t.place(x=0,y=410) 
         
-        add_btn= Button(manger, text="اضافة", bg= '#EC9B3B' ,width=35,command=self.add_std)
+        add_btn= Button(manger, text="اضافة", bg= '#EC9B3B',height=2 ,width=35,command=self.add_std)
         add_btn.place(x=20,y=440)
-        del_btn = Button(manger, text='حذف', bg= '#FDD2BF' ,width=35,command=self.del_std)
-        del_btn.place(x=20,y=480)
-        update_btn = Button(manger, text='تحديث', bg= '#B30C7B' ,width=35,command=self.update_std)
-        update_btn.place(x=20,y=520)
-        clear_btn = Button(manger, text='مسح الحقول', bg= '#7DACE4' ,width=35,command=self.clear)
-        clear_btn.place(x=20,y=560)
-        about_btn = Button(manger, text='معلومات عنا', bg= '#4ED99C' ,width=35)
-        about_btn.place(x=20,y=600)
+        del_btn = Button(manger, text='حذف', bg= '#FDD2BF' ,height=2,width=35,command=self.del_std)
+        del_btn.place(x=20,y=490)
+        update_btn = Button(manger, text='تحديث', bg= '#B30C7B',height=2 ,width=35,command=self.update_std)
+        update_btn.place(x=20,y=545)
+        clear_btn = Button(manger, text='مسح الحقول', bg= '#7DACE4' ,height=2,width=35,command=self.clear)
+        clear_btn.place(x=20,y=600)
+        about_btn = Button(manger, text='معلومات عنا', bg= '#4ED99C',height=2 ,width=35,command=self.about)
+        about_btn.place(x=20,y=655)
         exit_btn = Button(manger, text='خروج',command=exit,bg= '#5F6CAF',height=2 ,width=35)
-        exit_btn.place(x=20,y=650)
+        exit_btn.place(x=20,y=710)
 
         # fame for search 
         search =Frame(self.root,width=1100,height=75,bg='#E8F0F2')
@@ -179,6 +179,7 @@ class std:
             self.addrs_var.set('')
             self.del_var.set('')
             self.search_var.set('')
+            self.search_by.set('')
     def get_cursor(self,ev):
         cursor_row=self.std_table.focus()       
         conts = self.std_table.item(cursor_row)
@@ -194,7 +195,7 @@ class std:
     def update_std(self):
             con = pymysql.connect(host='localhost',user='root',password='',database='stud')
             cur = con.cursor()
-            cur.execute('update s1 set addrs=%s, gender=%s, cetri=%s, phone=%s, email=%s, name=%s where id=%s',(
+            cur.execute("update s1 set addrs=%s, gender=%s, cetri=%s, phone=%s, email=%s, name=%s where id=%s",(
                                                         self.addrs_var.get(),
                                                         self.gender_var.get(),
                                                         self.cetri_var.get(),
@@ -211,8 +212,8 @@ class std:
     def search(self):
             con = pymysql.connect(host='localhost',user='root',password='',database='stud')
             cur = con.cursor()
-            cur.execute("select * from s1 where " +
-            str(self.search_by.get())+" LIKE '%s"+str(self.search_var.get())+"%'")            
+            cur.execute("select * from s1 where "+
+            str(self.search_by.get())+" LIKE '%"+str(self.search_var.get())+"%'")            
             
             rows = cur.fetchall()
             if len (rows) !=0:
@@ -220,9 +221,11 @@ class std:
                 for row in rows:
                     self.std_table.insert("",END,value=row)
                 con.commit()
+            self.clear()
             con.close() 
   
-  
+    def about(self):
+        messagebox.showinfo("TEAM NASA","this first project ")
   
   
   
