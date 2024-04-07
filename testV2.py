@@ -12,22 +12,34 @@ class TicTacToe:
         self.player1_score = 0
         self.player2_score = 0
         
+        self.create_board()
+        self.create_scoreboard()
+    
+    def create_board(self):
         self.buttons = []
         for i in range(3):
             for j in range(3):
-                button = tk.Button(root, text=" ", width=10, height=3,
+                button = tk.Button(self.root, text=" ", width=10, height=3,
+                                   font=("Arial", 24, "bold"),
                                    command=lambda row=i, col=j: self.on_click(row, col))
-                button.grid(row=i, column=j)
+                button.grid(row=i, column=j, padx=5, pady=5)
                 self.buttons.append(button)
-                
-        self.scoreboard = tk.Label(root, text=f"نتيجة اللعبة: لاعب 1: {self.player1_score}, لاعب 2: {self.player2_score}")
-        self.scoreboard.grid(row=3, columnspan=3)
+    
+    def create_scoreboard(self):
+        self.score_label = tk.Label(self.root, text="نتيجة اللعبة:", font=("Arial", 16))
+        self.score_label.grid(row=3, column=0, columnspan=3, pady=10)
         
+        self.player1_label = tk.Label(self.root, text=f"لاعب 1: {self.player1_score}", font=("Arial", 14))
+        self.player1_label.grid(row=4, column=0, padx=10)
+        
+        self.player2_label = tk.Label(self.root, text=f"لاعب 2: {self.player2_score}", font=("Arial", 14))
+        self.player2_label.grid(row=4, column=1, padx=10)
+    
     def on_click(self, row, col):
         index = row * 3 + col
         if self.board[index] == " ":
             self.board[index] = self.current_player
-            self.buttons[index].config(text=self.current_player)
+            self.buttons[index].config(text=self.current_player, state=tk.DISABLED)
             if self.check_winner():
                 messagebox.showinfo("نتيجة اللعبة", f"اللاعب {self.current_player} فاز!")
                 if self.current_player == "X":
@@ -46,9 +58,9 @@ class TicTacToe:
     
     def ai_move(self):
         empty_indices = [i for i, val in enumerate(self.board) if val == " "]
-        index = random.choice(empty_indices)
+        index = self.get_best_move(empty_indices)
         self.board[index] = "O"
-        self.buttons[index].config(text="O")
+        self.buttons[index].config(text="O", state=tk.DISABLED)
         if self.check_winner():
             messagebox.showinfo("نتيجة اللعبة", "اللاعب AI فاز!")
             self.player2_score += 1
@@ -59,6 +71,43 @@ class TicTacToe:
             self.reset_game()
         else:
             self.current_player = "X"
+    
+    def get_best_move(self, empty_indices):
+        best_score = -float("inf")
+        best_move = None
+        for index in empty_indices:
+            self.board[index] = "O"
+            score = self.minimax(False)
+            self.board[index] = " "
+            if score > best_score:
+                best_score = score
+                best_move = index
+        return best_move
+    
+    def minimax(self, is_maximizing):
+        if self.check_winner():
+            return 1 if not is_maximizing else -1
+        elif " " not in self.board:
+            return 0
+        
+        if is_maximizing:
+            best_score = -float("inf")
+            for i in range(9):
+                if self.board[i] == " ":
+                    self.board[i] = "O"
+                    score = self.minimax(False)
+                    self.board[i] = " "
+                    best_score = max(score, best_score)
+            return best_score
+        else:
+            best_score = float("inf")
+            for i in range(9):
+                if self.board[i] == " ":
+                    self.board[i] = "X"
+                    score = self.minimax(True)
+                    self.board[i] = " "
+                    best_score = min(score, best_score)
+            return best_score
     
     def check_winner(self):
         lines = [(0, 1, 2), (3, 4, 5), (6, 7, 8),
@@ -72,11 +121,12 @@ class TicTacToe:
     def reset_game(self):
         for i in range(9):
             self.board[i] = " "
-            self.buttons[i].config(text=" ")
+            self.buttons[i].config(text=" ", state=tk.NORMAL)
         self.current_player = "X"
     
     def update_scoreboard(self):
-        self.scoreboard.config(text=f"نتيجة اللعبة: لاعب 1: {self.player1_score}, لاعب 2: {self.player2_score}")
+        self.player1_label.config(text=f"لاعب 1: {self.player1_score}")
+        self.player2_label.config(text=f"لاعب 2: {self.player2_score}")
 
 if __name__ == "__main__":
     root = tk.Tk()
